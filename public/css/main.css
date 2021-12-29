@@ -19,6 +19,18 @@ form {
   display: inline;
 }
 
+.centered {
+  text-align: center;
+}
+
+.image {
+  height: 20rem;
+}
+
+.image img {
+  height: 100%;
+}
+
 .main-header {
   width: 100%;
   height: 3.5rem;
@@ -141,9 +153,6 @@ form {
   align-items: stretch;
 }
 
-.centered {
-  text-align: center;
-}
 .card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }
@@ -166,7 +175,6 @@ form {
 
 .card__image img {
   width: 100%;
-  height: 280px;
 }
 
 .card__actions {
@@ -194,6 +202,17 @@ form {
 .btn:hover,
 .btn:active {
   background-color: #00695c;
+  color: white;
+}
+
+.btn.danger {
+  color: red;
+  border-color: red;
+}
+
+.btn.danger:hover,
+.btn.danger:active {
+  background: red;
   color: white;
 }
 
