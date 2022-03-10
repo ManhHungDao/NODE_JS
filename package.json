@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "body-parse": "^0.1.0",
+    "connect-mongodb-session": "^3.1.1",
     "eis": "0.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "express-session": "^1.17.2",
     "mongodb": "^4.2.2",
     "mongoose": "^6.2.3"
   }
