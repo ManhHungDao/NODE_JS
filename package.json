@@ -23,6 +23,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "mongodb": "^4.2.2",
-    "mongoose": "^6.2.3"
+    "mongoose": "^6.2.3",
+    "nodemailer": "^6.7.2"
   }
 }
