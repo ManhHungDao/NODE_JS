@@ -3,19 +3,16 @@ const nodemailer = require("nodemailer");
 
 const User = require("../models/user");
 
-const transport = nodemailer.createTransport({
+var transport = nodemailer.createTransport({
   host: "smtp.mailtrap.io",
   port: 2525,
   auth: {
-    user: "1a2b3c4d5e6f7g",
-    pass: "1a2b3c4d5e6f7g",
+    user: "94915be1a7464b",
+    pass: "f5e34725cdda60",
   },
 });
 
 exports.getLogin = (req, res, next) => {
-  // if (message.length > 0) {
-  //   message = message[0];
-  // } else message = null;
   let message = req.flash("error");
   if (message.length <= 0) message = null;
   res.render("auth/login", {
@@ -87,18 +84,21 @@ exports.postSignup = (req, res, next) => {
         return user.save();
       });
     })
-    .then((result) => {
+    .then(() => {
       res.redirect("/login");
-      return transport
-        .sendMail({
-          to: email,
-          from: "daomanhhung1202@gmail.com",
-          subject: "Signup Success",
-          html: "<h1>You successfully signed up</h1>",
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      let mailOptions = {
+        from: "daomanhhung1202@gmail.com",
+        to: email,
+        subject: "Test Nodemailer with Mailtrap",
+        text: "testing nodejs first project",
+        html: "<h1>Attachments</h1>",
+      };
+      return transport.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return console.log(error);
+        }
+        console.log("Message sent: %s", info.messageId);
+      });
     })
     .catch((err) => {
       console.error(err);
