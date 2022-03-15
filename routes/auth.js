@@ -2,6 +2,7 @@ const express = require("express");
 const { check, body } = require("express-validator/check");
 
 const authController = require("../controllers/auth");
+const User = require("../models/user");
 
 const router = express.Router();
 
@@ -9,7 +10,14 @@ router.get("/login", authController.getLogin);
 
 router.get("/signup", authController.getSignup);
 
-router.post("/login", authController.postLogin);
+router.post(
+  "/login",
+  [
+    check("email").isEmail().withMessage("Please enter a valid email."),
+    body("password", "Password invalid").isLength({ min: 6 }).isAlphanumeric(),
+  ],
+  authController.postLogin
+);
 
 router.post(
   "/signup",
@@ -18,9 +26,12 @@ router.post(
       .isEmail()
       .withMessage("Please enter a valid email.")
       .custom((value, { req }) => {
-        if (value === "admin@gmail.com")
-          throw new Error("This email address if forbidden");
-        return true;
+        return User.findOne({ email: value }).then((userDoc) => {
+          if (userDoc)
+            return Promise.reject(
+              "E-Mail exist already, please pack a diffirent one."
+            );
+        });
       }),
     body(
       "password",
@@ -29,11 +40,11 @@ router.post(
       .isLength({ min: 6 })
       .isAlphanumeric(),
     body("confirmPassword").custom((value, { req }) => {
-        if(value !== req.body.password){
-            throw new Error("Password have to match");
-        }
-        return true;
-    })
+      if (value !== req.body.password) {
+        throw new Error("Password have to match");
+      }
+      return true;
+    }),
   ],
   authController.postSignup
 );

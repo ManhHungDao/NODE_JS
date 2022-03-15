@@ -16,22 +16,54 @@ var transport = nodemailer.createTransport({
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
-  if (message.length <= 0) message = null;
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: '',
+    },
+    validationErrors: [],
   });
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "Login",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+      },
+      validationErrors: errors.array(),
+    });
+  }
+
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        req.flash("error", "Invalid email or password.");
-        return res.redirect("/login");
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          errorMessage: "Invalid email or password.",
+          oldInput: {
+            email: email,
+            password: password,
+          },
+          validationErrors: [],
+        });
       }
       bcrypt
         .compare(password, user.password)
@@ -44,10 +76,19 @@ exports.postLogin = (req, res, next) => {
               res.redirect("/");
             });
           }
-          res.redirect("/login");
+          return res.status(422).render("auth/login", {
+            path: "/login",
+            pageTitle: "Login",
+            errorMessage: "Invalid email or password.",
+            oldInput: {
+              email: email,
+              password: password,
+            },
+            validationErrors: [],
+          });
         })
         .catch((err) => {
-          console.error(err);
+          console.log(err);
           res.redirect("/login");
         });
     })
@@ -56,63 +97,65 @@ exports.postLogin = (req, res, next) => {
 
 exports.getSignup = (req, res, next) => {
   let message = req.flash("error");
-  if (message.length <= 0) message = null;
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationErrors: [],
   });
 };
 
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: req.body.confirmPassword,
+      },
+      validationErrors: errors.array(),
     });
   }
-  User.findOne({ email: email })
-    .then((userDoc) => {
-      if (userDoc) {
-        req.flash(
-          "error",
-          "E-Mail exist already, please pack a diffirent one."
-        );
-        return res.redirect("/signup");
-      }
-      return bcrypt.hash(password, 12).then((hashPassword) => {
-        const user = new User({
-          email: email,
-          password: hashPassword,
-          cart: { items: [] },
-        });
-        return user.save();
+
+  bcrypt
+    .hash(password, 12)
+    .then((hashedPassword) => {
+      const user = new User({
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] },
       });
+      return user.save();
     })
-    .then(() => {
+    .then((result) => {
       res.redirect("/login");
-      return transport.sendMail(
-        {
-          from: "daomanhhung1202@gmail.com",
-          to: email,
-          subject: "Signup",
-          text: "Hi",
-          html: "<p>Successfully</p>",
-        },
-        (error, info) => {
-          if (error) {
-            return console.log(error);
-          }
-          console.log("Message sent: %s", info.messageId);
-        }
-      );
+      // return transporter.sendMail({
+      //   to: email,
+      //   from: 'shop@node-complete.com',
+      //   subject: 'Signup succeeded!',
+      //   html: '<h1>You successfully signed up!</h1>'
+      // });
     })
     .catch((err) => {
-      console.error(err);
+      console.log(err);
     });
 };
 
