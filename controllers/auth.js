@@ -27,7 +27,7 @@ exports.getLogin = (req, res, next) => {
     errorMessage: message,
     oldInput: {
       email: "",
-      password: '',
+      password: "",
     },
     validationErrors: [],
   });
@@ -92,7 +92,11 @@ exports.postLogin = (req, res, next) => {
           res.redirect("/login");
         });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const errors = new Error(err);
+      errors.httpStatus = 500;
+      return next(errors);
+    });
 };
 
 exports.getSignup = (req, res, next) => {
@@ -147,15 +151,11 @@ exports.postSignup = (req, res, next) => {
     })
     .then((result) => {
       res.redirect("/login");
-      // return transporter.sendMail({
-      //   to: email,
-      //   from: 'shop@node-complete.com',
-      //   subject: 'Signup succeeded!',
-      //   html: '<h1>You successfully signed up!</h1>'
-      // });
     })
     .catch((err) => {
-      console.log(err);
+      const errors = new Error(err);
+      errors.httpStatus = 500;
+      return next(errors);
     });
 };
 
@@ -214,7 +214,9 @@ exports.postReset = (req, res, next) => {
       })
       .then((result) => {})
       .catch((err) => {
-        console.log(err);
+        const errors = new Error(err);
+        errors.httpStatus = 500;
+        return next(errors);
       });
   });
 };
@@ -238,7 +240,9 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const errors = new Error(err);
+      errors.httpStatus = 500;
+      return next(errors);
     });
 };
 
@@ -267,6 +271,8 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect("/login");
     })
     .catch((err) => {
-      console.log(err);
+      const errors = new Error(err);
+      errors.httpStatus = 500;
+      return next(errors);
     });
 };
