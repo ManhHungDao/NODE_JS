@@ -142,7 +142,7 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
-      if (!image) {
+      if (image) {
         product.imageUrl = image.path;
       }
       return product.save().then((result) => {
