@@ -21,7 +21,7 @@ router.post(
       .isLength({ min: 6 })
       .isAlphanumeric()
       .trim(),
-  ],
+  ],isAuth,
   authController.postLogin
 );
 
@@ -55,7 +55,7 @@ router.post(
         return true;
       })
       .trim(),
-  ],
+  ],isAuth,
   authController.postSignup
 );
 
